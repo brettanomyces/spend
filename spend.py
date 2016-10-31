@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sqlite3
+from peewee import *
 import argparse
 
 # TODO everything
@@ -28,26 +28,31 @@ import argparse
 # bll_description | bll_amount | bll_period
 # inc_description | inc_amount | inc_period
 
-class Income:
-    def __init__(self, amount, period):
-        self.amount = amount
-        self.period = period
+db = SqliteDatabase('spend.db')
 
-    def daily(self):
-        return self.amount / self.period
+class Income(Model):
+    amount = DoubleField()
+    period = IntegerField()
 
-class Bill:
-    def __init__(self, amount, period):
-        self.amount = amount
-        self.period = period
+    class Meta:
+        database = db
 
-    def daily(self):
-        return self.amount / self.period
+class Bill(Model):
+    amount = DoubleField()
+    period = IntegerField()
 
-class Spend:
-    def __init(self, amount, date):
-        self.amount = amount
-        self.date = date
+    class Meta:
+        database = db
+
+class Spend(Model):
+    amount = DoubleField()
+    date = DateTimeField()
+
+    class Meta:
+        database = db
+
+db.connect()
+db.create_tables([Income, Bill, Spend])
 
 class AddIncomeAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -71,23 +76,3 @@ parser.add_argument('--add-bill', nargs=2, action=AddBillAction)
 parser.add_argument('--spend', nargs=1, action=SpendAction)  # TODO allow user to enter date
 parser.add_argument('--print', nargs=0, action=PrintAction)
 args = parser.parse_args()
-
-conn = sqlite3.connect('spend.db')
-
-def isDatabaseSetup():
-    c = conn.cursor()
-    c.execute("""SELECT 1 FROM sqlite_master WHERE type='table' AND name='inc_income'""")
-    if c.fetchone()[0] == 1:
-        c.close()
-        return True
-
-    c.close()
-    return False
-
-if not isDatabaseSetup():
-    c = conn.cursor()
-    c.execute("""CREATE TABLE inc_income (inc_description text, inc_amount real, inc_period integer)""")
-    c.execute("""CREATE TABLE bll_bill (bll_description text, bll_amount real, bll_period integer)""")
-    c.execute("""CREATE TABLE spn_spend (spn_description text, spn_amount real, spn_date integer)""")
-    c.close()
-
