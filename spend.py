@@ -49,15 +49,28 @@ class Spend:
         self.amount = amount
         self.date = date
 
+class AddIncomeAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        print('%r %r %r' % (namespace, values, option_string))
+
+class AddBillAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        print('%r %r %r' % (namespace, values, option_string))
+
+class SpendAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        print('%r %r %r' % (namespace, values, option_string))
+
+class PrintAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        print('%r %r %r' % (namespace, values, option_string))
 
 parser = argparse.ArgumentParser(description='Process commandline input')
-parser.add_argument('--set-income', nargs=2)
-parser.add_argument('--add-bill', nargs=2)
-parser.add_argument('--spend', nargs=1)  # TODO allow user to enter date
-parser.add_argument('--print', action='store_true')
+parser.add_argument('--add-income', nargs=2, action=AddIncomeAction)
+parser.add_argument('--add-bill', nargs=2, action=AddBillAction)
+parser.add_argument('--spend', nargs=1, action=SpendAction)  # TODO allow user to enter date
+parser.add_argument('--print', nargs=0, action=PrintAction)
 args = parser.parse_args()
-
-print(args)
 
 conn = sqlite3.connect('spend.db')
 
