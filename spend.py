@@ -28,6 +28,37 @@ import argparse
 # bll_description | bll_amount | bll_period
 # inc_description | inc_amount | inc_period
 
+class Income:
+    def __init__(self, amount, period):
+        self.amount = amount
+        self.period = period
+
+    def daily(self):
+        return self.amount / self.period
+
+class Bill:
+    def __init__(self, amount, period):
+        self.amount = amount
+        self.period = period
+
+    def daily(self):
+        return self.amount / self.period
+
+class Spend:
+    def __init(self, amount, date):
+        self.amount = amount
+        self.date = date
+
+
+parser = argparse.ArgumentParser(description='Process commandline input')
+parser.add_argument('--set-income', nargs=2)
+parser.add_argument('--add-bill', nargs=2)
+parser.add_argument('--spend', nargs=1)  # TODO allow user to enter date
+parser.add_argument('--print', action='store_true')
+args = parser.parse_args()
+
+print(args)
+
 conn = sqlite3.connect('spend.db')
 
 def isDatabaseSetup():
