@@ -52,7 +52,8 @@ class Spend(Model):
         database = db
 
 db.connect()
-db.create_tables([Income, Bill, Spend])
+if not Income.table_exists():
+    db.create_tables([Income, Bill, Spend])
 
 class AddIncomeAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
