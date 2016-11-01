@@ -38,12 +38,19 @@ class Income(Model):
     class Meta:
         database = db
 
+    def daily_amount(self):
+        return self.amount / self.period
+
+
 class Bill(Model):
     amount = DoubleField()
     period = IntegerField()
 
     class Meta:
         database = db
+
+    def daily_amount(self):
+        return self.amount / self.ieriod
 
 class Spend(Model):
     amount = DoubleField()
@@ -81,12 +88,18 @@ class PrintAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
 
         print('Income:')
+        total_daily_income = 0.0
         for income in Income.select():
+            total_daily_income += income.daily_amount()
             print(income.amount, income.period)
+        print('Total daily income: ', total_daily_income)
         
         print('Bill:')
+        total_daily_bill = 0.0
         for bill in Bill.select():
+            total_daily_bill += bill.dialy_amount()
             print(bill.amount, bill.period)
+        print('Total daily bill: ', total_daily_bill)
 
         print('Spend:')
         for spend in Spend.select():
