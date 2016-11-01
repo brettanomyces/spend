@@ -2,6 +2,7 @@
 
 from peewee import *
 import argparse
+import datetime
 
 # TODO everything
 
@@ -46,7 +47,7 @@ class Bill(Model):
 
 class Spend(Model):
     amount = DoubleField()
-    date = DateTimeField()
+    date = DateTimeField(default=datetime.datetime.now)
 
     class Meta:
         database = db
@@ -59,17 +60,37 @@ class AddIncomeAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         print('%r %r %r' % (namespace, values, option_string))
 
+        income = Income.create(amount=values[0], period=values[1])
+        income.save()
+
 class AddBillAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         print('%r %r %r' % (namespace, values, option_string))
+
+        bill = Bill.create(amount=values[0], period=values[1])
+        bill.save()
 
 class SpendAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         print('%r %r %r' % (namespace, values, option_string))
 
+        spend = Spend.create(amount=values[0])
+        spend.save()
+
 class PrintAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        print('%r %r %r' % (namespace, values, option_string))
+
+        print('Income:')
+        for income in Income.select():
+            print(income.amount, income.period)
+        
+        print('Bill:')
+        for bill in Bill.select():
+            print(bill.amount, bill.period)
+
+        print('Spend:')
+        for spend in Spend.select():
+            print(spend.amount, spend.date)
 
 parser = argparse.ArgumentParser(description='Process commandline input')
 parser.add_argument('--add-income', nargs=2, action=AddIncomeAction)
