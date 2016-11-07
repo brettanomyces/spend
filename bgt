@@ -58,8 +58,12 @@ def print_bill():
     print('Total daily bill: ', total_daily_bill)
 
 def add_spend(amount):
-    spend = Spend.create(amount)
-    spend.save()
+    q = Spend.insert(amount=amount)
+    q.execute()
+
+def remove_spend(id):
+    q = Spend.delete().where(Spend.id == id)
+    q.execute()
 
 def print_spend():
     for spend in Spend.select():
@@ -84,19 +88,15 @@ subparsers = parser.add_subparsers(dest='subcommand')
 
 # spend command
 spend_parser = subparsers.add_parser('spend')
-spend_parser.add_argument('list')
-spend_parser.add_argument('-a', '--add', nargs=1)
+spend_parser.add_argument('-a', '--add', nargs='+')
 spend_parser.add_argument('-d', '--delete', nargs=1)
 
 # income command
 income_parser = subparsers.add_parser('income')
-income_parser.add_argument('list')
-income_parser.add_argument('-a', '--add',  nargs=2)
 income_parser.add_argument('-d', '--delete', nargs=1)
 
 # bill command
 bill_parser = subparsers.add_parser('bill')
-bill_parser.add_argument('list')
 bill_parser.add_argument('-a', '--add', nargs=2)
 bill_parser.add_argument('-d', '--delete', nargs=1)
 
@@ -109,6 +109,14 @@ args = parser.parse_args()
 
 if args.subcommand == 'spend':
     print('spend')
+    if not args.delete == None:
+        # delete spending by id provided
+        remove_spend(args.delete[0])
+    else:
+        # add each positional arg
+        for spend in args.add:
+            add_spend(spend)
+
 elif args.subcommand == 'income':
     print('income')
 elif args.subcommand == 'bill':
