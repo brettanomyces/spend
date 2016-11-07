@@ -78,7 +78,7 @@ if not Income.table_exists():
     db.create_tables([Income, Bill, Spend])
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-p', '--print')
+parser.add_argument('-p', '--print', action='store_true')
 
 subparsers = parser.add_subparsers(dest='subcommand')
 
@@ -100,6 +100,7 @@ bill_parser.add_argument('list')
 bill_parser.add_argument('-a', '--add', nargs=2)
 bill_parser.add_argument('-d', '--delete', nargs=1)
 
+# import command
 import_parser = subparsers.add_parser('import')
 import_parser.add_argument('file', nargs=1)
 import_parser.add_argument('-f', '--format', nargs=1)
@@ -115,5 +116,8 @@ elif args.subcommand == 'bill':
 elif args.subcommand == 'import':
     print('import')
 else :    
-    print(args)
+    if args.print == True:
+        print_all()
+
+print(args)
 
