@@ -3,6 +3,7 @@
 from peewee import *
 import argparse
 import datetime
+import csv
 
 db = SqliteDatabase('spend.db')
 
@@ -35,6 +36,17 @@ class Spend(Model):
     class Meta:
         database = db
 
+class AsbVisaRow():
+
+    def __init__(self, date_processed, date_of_transaction, unique_id, transaction_type, reference, description, amount):
+        self.date_processed = date_processed
+        self.date_of_transaction = date_of_transaction
+        self.unique_id = unique_id
+        self.transaction_type = transaction_type
+        self.reference = reference
+        self.description = description
+        self.amount = amount
+
 def add_income(amount, period):
     income = Income.create(amount, period)
     income.save()
@@ -57,8 +69,8 @@ def print_bill():
         print(bill.amount, bill.period)
     print('Total daily bill: ', total_daily_bill)
 
-def add_spend(amount):
-    q = Spend.insert(amount=amount)
+def add_spend(amount, date=datetime.datetime.now):
+    q = Spend.insert(amount=amount, date=date)
     q.execute()
 
 def remove_spend(id):
@@ -71,6 +83,23 @@ def print_spend():
 
 def import_spending(file, format):
     print(file, format)
+    with open(file) as f:
+        reader = csv.reader(f)
+        next(reader)
+        next(reader)
+        next(reader)
+        next(reader)
+        next(reader)
+        next(reader)
+        for row in reader:
+            transaction = AsbVisaRow( \
+                    datetime.datetime.strptime(row[0], '%Y/%m/%d'), \
+                    datetime.datetime.strptime(row[1], '%Y/%m/%d'), \
+                    row[2], row[3], row[4], row[5], float(row[6]))
+            
+            if transaction.transaction_type == 'DEBIT':
+                add_spend(transaction.amount, transaction.date_of_transaction)
+
 
 def print_all():
     print_income()
@@ -123,6 +152,7 @@ elif args.subcommand == 'bill':
     print('bill')
 elif args.subcommand == 'import':
     print('import')
+    import_spending(args.file[0], "")
 else :    
     if args.print == True:
         print_all()
