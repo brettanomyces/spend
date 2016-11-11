@@ -17,7 +17,6 @@ class Income(Model):
     def daily_amount(self):
         return self.amount / self.period
 
-
 class Bill(Model):
     amount = DoubleField()
     period = IntegerField()
@@ -27,7 +26,6 @@ class Bill(Model):
 
     def daily_amount(self):
         return self.amount / self.ieriod
-
 
 class Spend(Model):
     date = DateTimeField(default=datetime.datetime.now)
@@ -79,8 +77,14 @@ def remove_spend(id):
     q.execute()
 
 def print_spend():
-    for spend in Spend.select():
+    # transactions in order of most recent to least recent
+    transactions = Spend.select().order_by(Spend.date.desc()) 
+    days = (transactions[0].date - transactions[transactions.count() - 1].date).days
+    total_spend = 0.0
+    for spend in transactions:
+        total_spend += spend.amount
         print(spend.id, spend.date, spend.amount, spend.description)
+    print("average daily spend: ", total_spend / days)
 
 def import_spending(file, format):
     print(file, format)
