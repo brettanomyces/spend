@@ -30,8 +30,9 @@ class Bill(Model):
 
 
 class Spend(Model):
-    amount = DoubleField()
     date = DateTimeField(default=datetime.datetime.now)
+    amount = DoubleField()
+    description = TextField()
 
     class Meta:
         database = db
@@ -69,8 +70,8 @@ def print_bill():
         print(bill.amount, bill.period)
     print('Total daily bill: ', total_daily_bill)
 
-def add_spend(amount, date=datetime.datetime.now):
-    q = Spend.insert(amount=amount, date=date)
+def add_spend(amount, date, description):
+    q = Spend.insert(amount=amount, date=date, description=description)
     q.execute()
 
 def remove_spend(id):
@@ -79,12 +80,13 @@ def remove_spend(id):
 
 def print_spend():
     for spend in Spend.select():
-        print(spend.id, spend.amount, spend.date)
+        print(spend.id, spend.date, spend.amount, spend.description)
 
 def import_spending(file, format):
     print(file, format)
     with open(file) as f:
         reader = csv.reader(f)
+        # skip headers
         next(reader)
         next(reader)
         next(reader)
@@ -98,7 +100,10 @@ def import_spending(file, format):
                     row[2], row[3], row[4], row[5], float(row[6]))
             
             if transaction.transaction_type == 'DEBIT':
-                add_spend(transaction.amount, transaction.date_of_transaction)
+                add_spend( \
+                        transaction.amount, \
+                        transaction.date_of_transaction, \
+                        transaction.description)
 
 
 def print_all():
